@@ -50,7 +50,8 @@ def load_plugins():
     @rtype:  list of functions which return tuples of (MessageView, TimelineRenderer, list of: message type or '*')
     """
     plugins = []
-
+    
+    
     rospack = rospkg.RosPack()
     to_check = rospack.get_depends_on('rxbag', implicit=False)
 
@@ -84,8 +85,52 @@ def load_plugins():
                 plugins.extend(plugins_func())
             else:
                 print("Cannot load plugin [%s]: no 'get_rxbag_plugins' attribute" % (plugin_module_name), file=sys.stderr)
+                
+            # Retrieve the function
+            plugins_func = None
+            try:
+                plugins_func = getattr(plugin_module, 'get_rxbag_plugins')
+            except AttributeError: pass
+    
+            if plugins_func:
+                plugins.extend(plugins_func())
+            else:
+                print("Cannot load plugin [%s]: no 'get_rxbag_plugins' attribute" % (plugin_module_name), file=sys.stderr)
 
         except Exception as ex:
             print("Unable to load plugin [%s] from package [%s]:\n%s" % (plugin_module_name, pkg, traceback.format_exc()), file=sys.stderr)
-
+            
+            
+    # Special case
+    # hack to make it find it https://github.com/ros-infrastructure/rospkg/issues/59
+    try:
+        from rxbag_plugins import plugins as p
+        # Retrieve the function
+        plugins_func = None
+        try:
+            plugins_func = p.get_rxbag_plugins
+        except AttributeError:
+            print("AttributeError on plugins_func = plugins.get_rxbag_plugins")
+            pass
+             
+        if plugins_func:
+            plugins.extend(plugins_func())
+            print("Succesfully extended plugins, in theory XD")
+        else:
+            print("Cannot load plugin: no 'get_rxbag_plugins' attribute", file=sys.stderr)
+             
+    except Exception as e:
+        print("Unable to load plugins from package rxbag_plugins")
+        print(e)
+             
+    # This works also but is a lot dirtier
+#     from rxbag_plugins.image_timeline_renderer import ImageTimelineRenderer
+#     from rxbag_plugins.image_view              import ImageView
+#     from rxbag_plugins.plot_view               import PlotView
+# 
+# 
+#     plugins.extend( [(ImageView, ImageTimelineRenderer, ['sensor_msgs/Image', 'sensor_msgs/CompressedImage']),
+#             (PlotView,  None,                  ['*'])] )
+    
+    
     return plugins

@@ -19,6 +19,7 @@
   <run_depend>rxtools</run_depend>
   <run_depend>wxpython_swig_interface</run_depend>
   <run_depend>xdot</run_depend>
+  <run_depend>rxbag_plugins</run_depend>
 
   <export>
     <metapackage/>

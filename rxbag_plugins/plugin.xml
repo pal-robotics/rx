@@ -1,0 +1,7 @@
+<library path="src">
+  <class name="RxBagPlugin" type="rxbag_plugins.plugins" base_class_type="rxbag::Plugin">
+    <description>
+      A plugin set for rxbag.
+    </description>
+  </class>
+</library>
