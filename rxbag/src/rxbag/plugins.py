@@ -115,7 +115,6 @@ def load_plugins():
              
         if plugins_func:
             plugins.extend(plugins_func())
-            print("Succesfully extended plugins, in theory XD")
         else:
             print("Cannot load plugin: no 'get_rxbag_plugins' attribute", file=sys.stderr)
              

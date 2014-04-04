@@ -41,6 +41,7 @@ import wx
 import cairo
 
 def imgmsg_to_pil(img_msg, rgba=True):
+    pil_img = None
     try:
         if img_msg._type == 'sensor_msgs/CompressedImage':
             pil_img = Image.open(StringIO(img_msg.data))
@@ -48,6 +49,7 @@ def imgmsg_to_pil(img_msg, rgba=True):
                 pil_img = pil_bgr2rgb(pil_img)
         else:
             alpha = False
+            mode = None
             if img_msg.encoding == 'mono8':
                 mode = 'L'
             elif img_msg.encoding == 'rgb8':
@@ -67,10 +69,13 @@ def imgmsg_to_pil(img_msg, rgba=True):
             elif img_msg.encoding == 'bgra8':
                 mode = 'RGB'
                 alpha = True
-    
-            pil_img = Image.frombuffer('RGB', (img_msg.width, img_msg.height), img_msg.data, 'raw', mode, 0, 1)
+            
+            if mode:
+                pil_img = Image.frombuffer('RGB', (img_msg.width, img_msg.height), img_msg.data, 'raw', mode, 0, 1)
+            else:
+                print >> sys.stderr, 'Can\'t convert image, mode not set'
 
-        if rgba and pil_img.mode != 'RGBA':
+        if rgba and pil_img and pil_img.mode != 'RGBA':
             pil_img = pil_img.convert('RGBA')
     
         return pil_img
